@@ -1,4 +1,4 @@
-#SBP-IT Scripts
+# SBP-IT Scripts
 
 This repo contains scripts that were created by myself during this time working at St. Benedict's Prep. These scripts were created to speed up our yearly tasks of cleaning up graduated students and adding new ones.
 
