@@ -28,3 +28,17 @@ function Initialize-ServerFile { #Creates file to be used for writing report
     }
     
 }
+
+function Write-Memory($hostname){
+    Write-ServerFile(Get-Counter -Counter "\memory\available mbytes" -computername $hostname)
+    Write-ServerFile("")
+}
+
+function Write-CPULoad($hostname){
+    Write-ServerFile(Get-WmiObject win32_processor -computername $hostname | Measure-Object -property LoadPercentage -Average | Select Average)
+    Write-ServerFile("")
+}
+
+function Write-Storage($hostname){
+    Write-ServerFile(Get-WmiObject -Class Win32_LogicalDisk -ComputerName $hostname | ? {$_. DriveType -eq 3} | select DeviceID, {$_.Size /1GB}, {$_.FreeSpace /1GB})
+}

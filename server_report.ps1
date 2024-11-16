@@ -21,9 +21,14 @@ if($continue -eq "Y"){
     Initialize-ServerFile
 
     foreach ($Server in $splitServers){
-        Write-ServerFile($Server)
+        Write-ServerFile("=============$Server=============")
+        Write-ServerFile("")
+        Write-Memory($Server)
+        Write-CPULoad($Server)
+        Write-Storage($Server)
     }
+}else{
+    Write-Host "Program Terminated!"
 }
 
 Write-Host "Program Complete! Look for the filename below in the current directory!"
-Write-Host Get-ServerFile
