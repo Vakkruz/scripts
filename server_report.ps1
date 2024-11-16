@@ -7,7 +7,7 @@ Write-Host ""
 
 Write-Host "////////////////////////////////////////////////"-ForegroundColor Magenta -BackgroundColor Black
 Write-Host "Specify the hostnames of servers you'd like reports for"-ForegroundColor Magenta -BackgroundColor Black
-Write-Host "	NOTE: For multiple groups, use commas with no leading spaces (Ex: Group A,Group B,Group D,...)"-ForegroundColor White -BackgroundColor Black
+Write-Host "	NOTE: For multiple servers, use commas with no leading spaces (Ex: Hostname1,Hostname2,...)"-ForegroundColor White -BackgroundColor Black
 $allServers = Read-Host "Enter here " 
 
 $splitServers = $allServers -split ',' #Splits the groups based on the commas so the for loop later can read it
@@ -18,12 +18,13 @@ $continue = Read-Host "Enter here"
 if($continue -eq "Y"){
 
     Initialize-ServerFile
+    $filename = Get-ServerFile
 
     foreach ($Server in $splitServers){
         if ($Server -eq ""){#If the server list has a blank entry, skip it to prevent a crash
             Write-Host "=== BLANK ENTRY DETECTED. SKIPPING... ===" -ForegroundColor Red -BackgroundColor Black
         }else{
-            Write-Host "PROCESSING $Server. Please wait..." -ForegroundColor Magenta -BackgroundColor Black
+            Write-Host "PROCESSING $Server...Please wait..." -ForegroundColor Magenta -BackgroundColor Black
             Write-ServerFile("=============$Server=============")
             Write-ServerFile("")
             Write-Memory($Server)
@@ -32,7 +33,8 @@ if($continue -eq "Y"){
         }
 
     }
-    Write-Host "Program Complete! Look for the filename below in the current directory!"
+    
+    Write-Host "Program Complete! Look for $filename in the current directory!"
 }else{
     Write-Host "Program Terminated!"
 }
