@@ -17,13 +17,14 @@ function Write-ServerFile($output){ #Main function to write to the txt file. Tak
 function Initialize-ServerFile { #Creates file to be used for writing report
     
     if (Get-ServerFile -ne $null){#If file already exists, overwrite
+        $date = Get-TimeofDay #All reports will have the date as the suffix to make unique, in case there are multiple old reports in directory
         $filename = Get-ServerFile
         $output | Out-File -FilePath .\$filename
-        Write-ServerFile("Hello asshole again")
+        Write-ServerFile("SERVER STATUS REPORT--GENERATED $date")
     }else{
-        $date = Get-TimeofDay #All reports will have the date as the suffix to make unique, in case there are multiple old reports in directory
+        $date = Get-TimeofDay 
         Out-File -FilePath .\ServerStatus-$date.txt
-        Write-ServerFile("Hello asshole")
+        Write-ServerFile("SERVER STATUS REPORT--GENERATED $date")
     }
     
 }
