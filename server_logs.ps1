@@ -1,0 +1,11 @@
+<#
+* SCRIPT TO GENERATE LOGS ON SERVERS
+    * NEEDS TO SPAN A MONTH
+    * LOG FIRST KNOWN INSTANCE WITH TIMESTAMP
+    * QUANTIFY SUBSEQUENT INSTANCES
+    * READABLE!!!!!
+#>
+
+Import-Module .\svr_rpt_functions.psm1
+
+Initialize-ServerFile

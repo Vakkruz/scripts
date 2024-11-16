@@ -2,33 +2,22 @@
 
 $ErrorActionPreference = 'Stop' #Any error generated 'stops' the script, allowing the use of Try-Catch 
 
-function Get-TimeofDay{ #Generates date suffix to be used for regex in other functions
+function Get-TodaysDate{ #Generates date suffix to be used for regex in other functions
     Get-Date -Format "yyyy.MM.dd"
 }
 
+function Get-MonthAgo{
+    (Get-Date).AddMonths(-1)
+}
+
 function Get-ServerFile { #Retrieves filename of report based on the current date
-    $date = Get-TimeofDay
+    $date = Get-TodaysDate
     Get-ChildItem -Path "./*$date.txt" -Name
 }
 
 function Write-ServerFile($output){ #Main function to write to the txt file. Takes one parameter: the thing to be written
     $filename = Get-ServerFile
     $output | Out-File -FilePath .\$filename -Append 
-}
-
-function Initialize-ServerFile { #Creates file to be used for writing report
-    
-    if (Get-ServerFile -ne $null){#If file already exists, overwrite
-        $date = Get-TimeofDay #All reports will have the date as the suffix to make unique, in case there are multiple old reports in directory
-        $filename = Get-ServerFile
-        $output | Out-File -FilePath .\$filename
-        Write-ServerFile("SERVER STATUS REPORT--GENERATED $date")
-    }else{#Create the file if it doesn't exist
-        $date = Get-TimeofDay 
-        Out-File -FilePath .\ServerStatus-$date.txt
-        Write-ServerFile("SERVER STATUS REPORT--GENERATED $date")
-    }
-    
 }
 
 function Write-Memory($hostname){
@@ -67,3 +56,5 @@ function Write-Storage($hostname){
 
     
 }
+
+
