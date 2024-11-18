@@ -1,6 +1,6 @@
 #===== Functions for Report Script =======
 
-$ErrorActionPreference = 'Stop' #Any error generated 'stops' the script, allowing the use of Try-Catch 
+$ErrorActionPreference = 'Stop' #Any error generated 'stops' the script, allowing the use of Try-Catch later on
 
 function Get-TodaysDate{ #Generates date suffix to be used for regex in other functions
     Get-Date -Format "yyyy.MM.dd"
@@ -51,7 +51,7 @@ function  Initialize-LogFile {
         $date = Get-TodaysDate #All reports will have the date as the suffix to make unique, in case there are multiple old reports in directory
         $filename = Get-LogFilename
         $output | Out-File -FilePath .\$filename
-        Write-ServerFile("SERVER LOGS REPORT--GENERATED $date")
+        Write-LogFile("SERVER LOGS REPORT--GENERATED $date")
     }else{#Create the file if it doesn't exist
         $date = Get-TodaysDate   
         Out-File -FilePath .\ServerLogs-$date.txt
@@ -62,13 +62,23 @@ function  Initialize-LogFile {
 
 function Write-LogQuery($hostname){
     $last_month = Get-MonthAgo
+    try {
+        $query = Get-WinEvent -ComputerName $hostname -FilterHashtable @{
+            LogName='System','Application' #Gets logs in these categories
+            Level=1,2,3 #Filters logs by Critical, Error and Warning
+            StartTime=$last_month #Gets all logs over a month
+        } | Format-Table -Wrap #Text wrapping to prevent messages from getting cut off
 
-    $query = Get-WinEvent -ComputerName DC03 -FilterHashtable @{
-        LogName='System'
-        Level=1,2,3
-        StartTime=$last_month
+        Write-LogFile($query)
     }
-    Write-LogFile($query)
+    catch {
+        Write-Host ">>>> Powershell detected an error with Hostname: $hostname. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
+    }
+    finally {
+        Write-ServerFile("")
+    }
+
+
 }
 
 
@@ -76,7 +86,7 @@ function Write-Memory($hostname){
     try{
         Write-ServerFile(Get-Counter -Counter "\memory\available mbytes" -computername $hostname) 
     }catch{
-        Write-Host ">>>> Powershell detected an error with Hostname: $hostname. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
+        Write-Host ">>>> Powershell attempted to write the memory for $hostname and failed. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
     }finally{
         Write-ServerFile("")
     }
@@ -87,7 +97,7 @@ function Write-CPULoad($hostname){
         Write-ServerFile(Get-WmiObject win32_processor -computername $hostname | Measure-Object -property LoadPercentage -Average | Select Average)
     }
     catch {
-        Write-Host ">>>> Powershell detected an error with Hostname: $hostname. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
+        Write-Host ">>>> Powershell attempted to write the CPU load for $hostname and failed. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
     }
     finally {
         Write-ServerFile("")
@@ -99,7 +109,7 @@ function Write-Storage($hostname){
         Write-ServerFile(Get-WmiObject -Class Win32_LogicalDisk -ComputerName $hostname | ? {$_. DriveType -eq 3} | select DeviceID, {$_.Size /1GB}, {$_.FreeSpace /1GB})
     }
     catch {
-        Write-Host ">>>> Powershell detected an error with Hostname: $hostname. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
+        Write-Host ">>>> Powershell attempted to write the disk storage for $hostname and failed. Will not write to file. Check spelling or connect directly to server." -ForegroundColor Red -BackgroundColor Black
     }
     finally {
         Write-ServerFile("")

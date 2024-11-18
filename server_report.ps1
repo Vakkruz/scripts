@@ -24,7 +24,7 @@ if($continue -eq "Y"){
         if ($Server -eq ""){#If the server list has a blank entry, skip it to prevent a crash
             Write-Host "=== BLANK ENTRY DETECTED. SKIPPING... ===" -ForegroundColor Red -BackgroundColor Black
         }else{
-            Write-Host "PROCESSING $Server...Please wait..." -ForegroundColor Magenta -BackgroundColor Black
+            Write-Host "PROCESSING $Server STATUS...Please wait..." -ForegroundColor Magenta -BackgroundColor Black
             Write-ServerFile("=============$Server=============")
             Write-ServerFile("")
             Write-Memory($Server)
@@ -33,8 +33,27 @@ if($continue -eq "Y"){
         }
 
     }
-    
-    Write-Host "Program Complete! Look for $filename in the current directory!"
+
+    Write-Host "Status File Complete! Look for $filename in the current directory!" -ForegroundColor Magenta -BackgroundColor Black
+    Write-Host "Now begining Log File Generation. Please wait..." -ForegroundColor Magenta -BackgroundColor Black
+    Initialize-LogFile 
+    $filename2 = Get-LogFilename
+    Start-Sleep -Seconds 1
+    Write-Host "Starting..." -ForegroundColor Magenta -BackgroundColor Black
+
+    foreach ($Server in $splitServers){
+        if ($Server -eq ""){#If the server list has a blank entry, skip it to prevent a crash
+            Write-Host "=== BLANK ENTRY DETECTED. SKIPPING... ===" -ForegroundColor Red -BackgroundColor Black
+        }else{
+            Write-Host "WRITING $Server ERROR LOGS...Please wait..." -ForegroundColor Magenta -BackgroundColor Black
+            Write-LogFile("=============$Server=============")
+            Write-LogFile("")
+            Write-LogQuery($Server)
+        }
+    }
+    Write-Host "Log File Complete! Look for $filename2 in the current directory!" -ForegroundColor Magenta -BackgroundColor Black
+    Start-Sleep -Seconds 1
+    Write-Host "Program is now complete!" -ForegroundColor Magenta -BackgroundColor Black
 }else{
     Write-Host "Program Terminated!"
 }
